@@ -1,0 +1,11 @@
+{
+    "api_key": "YOUR_DEEPSEEK_API_KEY_HERE",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-chat",
+    "trigger_suffix": "vv",
+    "temperature": 0.1,
+    "max_tokens": 120,
+    "timeout_seconds": 5.0,
+    "debounce_seconds": 0.8,
+    "system_prompt": "你是一个智能拼音输入法AI联想引擎。将用户的长拼音转换为自然、通顺、合理的中文句子。允许纠错、纠音、混合中英文。直接输出最终上屏句子，严禁包含任何客套话、解释说明或Markdown格式。"
+}
