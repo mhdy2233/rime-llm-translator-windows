@@ -27,7 +27,7 @@ def load_config():
         "model": "deepseek-chat",
         "trigger_suffix": "vv",
         "temperature": 0.1,
-        "max_tokens": 120,
+        "max_tokens": 500,
         "timeout_seconds": 5.0,
         "ipc_dir": os.path.join(os.environ.get("TEMP", "C:/Temp"), "rime_llm_ipc"),
         "system_prompt": "你是一个智能拼音输入法AI联想引擎。将用户的长拼音转换为自然、通顺、合理的中文句子。允许纠错、纠音、混合中英文。直接输出最终上屏句子，严禁包含任何客套话、解释说明或Markdown格式。"
@@ -82,9 +82,19 @@ def call_deepseek_api(cfg, pinyin_input):
     body = clean_pinyin
     tag = ""
     system_prompt = (
-        "你是中文拼音输入法AI联想引擎。把用户的拼音转换为自然、通顺的句子。\n"
-        "用户输入的拼音极有可能包含键盘邻键误触、漏字母、多字母、错拼或混淆（例如 a/s/w 邻键误触，前后鼻音混淆等），请充分考虑输入错误并进行智能容错纠正。\n"
-        "请按可能性从高到低提供最多 3 个不同的合理候选结果，每行一个（按第1到第3行输出），严禁包含任何序号、解释说明、拼音或额外标点。"
+        "你是专业中文拼音输入法AI联想引擎。将用户的长拼音转换为自然、通顺、符合日常口语与书面语境的句子。\n"
+        "用户输入极可能包含打字失误，请充分推理其真实意图并进行智能容错：\n"
+        "1. 键盘邻键物理误触（如 a/s/w 互串、i/o/p 互串、g/h 互串等）；\n"
+        "2. 漏打字母或简拼音节（如 rn->ren、shij->shijie）；\n"
+        "3. 前后鼻音混淆（如 in/ing、en/eng、an/ang）。\n"
+        "输出要求：\n"
+        "请按概率从高到低提供最多 3 个【互不相同、各具差异】的候选句子，每行一个（按第1到第3行输出）：\n"
+        "- 第1行（首选）：最符合标准汉语语境、最通顺自然的高概率整句；\n"
+        "- 第2行（次选）：语义合理但词界切分或同音字用词不同的备选句子；\n"
+        "- 第3行（容错）：考虑可能存在键盘误触或拼写失误后的强纠错句子。\n"
+        "严格规则：\n"
+        "- 绝对禁止输出完全相同的重复句子，3个候选必须各不相同；\n"
+        "- 严禁输出任何序号（不要1. 2. 3.）、拼音、解释说明或额外标点。"
     )
 
     if ":" in clean_pinyin:
@@ -108,8 +118,8 @@ def call_deepseek_api(cfg, pinyin_input):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": body}
         ],
-        "temperature": 0.3 if not prefix else cfg.get("temperature", 0.1),
-        "max_tokens": cfg.get("max_tokens", 120)
+        "temperature": 0.4 if not prefix else cfg.get("temperature", 0.1),
+        "max_tokens": cfg.get("max_tokens", 500)
     }
 
     req = urllib.request.Request(
