@@ -3,6 +3,9 @@
 > **Windows (小狼毫 Weasel) 专用的 Rime 大模型拼音联想与指令增强扩展**  
 > 0 弹黑框、0ms 日常打字穿透、键盘邻键智能容错三候选、集成丰富的前缀 AI 指令（问答/翻译/命令/猫娘）。
 
+[![GitHub Release](https://img.shields.io/github/v/release/mhdy2233/rime-llm-translator-windows?style=flat-square&color=blue)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest)
+[![Download Standalone](https://img.shields.io/badge/下载-独立免安装版%20(无需Python)-success?style=flat-square&logo=windows)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest/download/rime-llm-translator-windows-v1.0.0-standalone.zip)
+
 ---
 
 ## 💡 致谢与参考
@@ -44,7 +47,7 @@
 ### 前置条件
 1. 系统为 Windows 10 / 11；
 2. 已安装 [小狼毫 (Weasel)](https://github.com/rime/weasel) 输入法；
-3. 已安装 [Python 3.8+](https://www.python.org/)（安装时请务必勾选 **`Add python.exe to PATH`**）；
+3. 如果下载的是 **[独立免安装版 (Release)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest)**，**无需系统预装 Python**（内置运行环境）；若克隆源码运行则需 [Python 3.8+](https://www.python.org/)；
 4. 拥有一个 [DeepSeek API Key](https://platform.deepseek.com/)（也可通过配置切换为其他兼容 OpenAI 接口的模型）。
 
 ### 一键部署
