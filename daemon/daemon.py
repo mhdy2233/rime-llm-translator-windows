@@ -28,6 +28,8 @@ def load_config():
         "trigger_suffix": "vv",
         "temperature": 0.1,
         "max_tokens": 500,
+        "enable_context": True,
+        "max_context_length": 60,
         "timeout_seconds": 5.0,
         "ipc_dir": os.path.join(os.environ.get("TEMP", "C:/Temp"), "rime_llm_ipc"),
         "system_prompt": "你是一个智能拼音输入法AI联想引擎。将用户的长拼音转换为自然、通顺、合理的中文句子。允许纠错、纠音、混合中英文。直接输出最终上屏句子，严禁包含任何客套话、解释说明或Markdown格式。"
@@ -72,11 +74,13 @@ PREFIX_RULES = {
     }
 }
 
-def call_deepseek_api(cfg, pinyin_input):
+def call_deepseek_api(cfg, pinyin_input, context=""):
     clean_pinyin = pinyin_input.strip().replace("：", ":")
-    if clean_pinyin in MEM_CACHE:
-        cached_res, tag = MEM_CACHE[clean_pinyin]
-        return cached_res, True, tag
+    clean_context = context.strip() if context else ""
+    enable_context = cfg.get("enable_context", True)
+    max_ctx_len = cfg.get("max_context_length", 60)
+    if clean_context and len(clean_context) > max_ctx_len:
+        clean_context = clean_context[-max_ctx_len:]
 
     prefix = None
     body = clean_pinyin
@@ -106,6 +110,18 @@ def call_deepseek_api(cfg, pinyin_input):
             tag = PREFIX_RULES[p_key]["tag"]
             system_prompt = PREFIX_RULES[p_key]["prompt"]
 
+    use_context = bool(enable_context and clean_context and not prefix)
+    cache_key = f"ctx:{clean_context}:{clean_pinyin}" if use_context else clean_pinyin
+    if cache_key in MEM_CACHE:
+        cached_res, tag = MEM_CACHE[cache_key]
+        return cached_res, True, tag
+
+    if use_context:
+        user_content = f"【前文参考】：{clean_context}\n【当前输入拼音】：{body}"
+        system_prompt += "\n重要：若提供了【前文参考】，请务必结合前文语义进行上下文消歧与连贯推测（例如前文提到汽车时，当前拼音 youxiang 应当为油箱而非邮箱）。"
+    else:
+        user_content = body
+
     url = f"{cfg.get('base_url', 'https://api.deepseek.com').rstrip('/')}/chat/completions"
     headers = {
         "Content-Type": "application/json",
@@ -116,7 +132,7 @@ def call_deepseek_api(cfg, pinyin_input):
         "model": cfg.get("model", "deepseek-chat"),
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": body}
+            {"role": "user", "content": user_content}
         ],
         "temperature": 0.4 if not prefix else cfg.get("temperature", 0.1),
         "max_tokens": cfg.get("max_tokens", 500)
@@ -158,14 +174,15 @@ def call_deepseek_api(cfg, pinyin_input):
                     results = [raw_content.replace("\n", " ").strip()]
                 results = results[:3]
 
-            MEM_CACHE[clean_pinyin] = (results, tag)
+            MEM_CACHE[cache_key] = (results, tag)
             if len(MEM_CACHE) > 500:
                 oldest = next(iter(MEM_CACHE))
                 MEM_CACHE.pop(oldest, None)
 
             dt = (time.time() - t0) * 1000
             tag_info = f"[{tag}] " if tag else ""
-            log(f"DeepSeek 返回成功: {tag_info}{clean_pinyin} -> {results} ({dt:.0f}ms)")
+            ctx_info = f"[前文:{clean_context}] " if use_context else ""
+            log(f"DeepSeek 返回成功: {tag_info}{ctx_info}{clean_pinyin} -> {results} ({dt:.0f}ms)")
             return results, False, tag
     except Exception as e:
         err_msg = f"[AI错误: {e}]"
@@ -282,7 +299,8 @@ def run_loop():
                             }
                         else:
                             log(f"接收翻译请求: id={req_id}, pinyin={pinyin}")
-                            results, cached, tag = call_deepseek_api(cfg, pinyin)
+                            context_in = req_data.get("context", "")
+                            results, cached, tag = call_deepseek_api(cfg, pinyin, context=context_in)
                             first_result = results[0] if results else ""
                             resp_file = os.path.join(ipc_dir, f"resp_{req_id}.json")
                             tmp_resp = resp_file + ".tmp"

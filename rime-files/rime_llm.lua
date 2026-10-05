@@ -14,6 +14,31 @@ local status_file = ipc_dir .. "/daemon.status"
 
 function M.init(env)
     math.randomseed(os.time())
+    env.commit_history = {}
+    local ctx = env.engine and env.engine.context
+    if ctx and ctx.commit_notifier then
+        env.commit_conn = ctx.commit_notifier:connect(function(c)
+            local text = c:get_commit_text()
+            if text and #text > 0 and text:match("%S") then
+                table.insert(env.commit_history, text)
+                local total_len = 0
+                for _, s in ipairs(env.commit_history) do
+                    total_len = total_len + #s
+                end
+                while #env.commit_history > 1 and total_len > 240 do
+                    local removed = table.remove(env.commit_history, 1)
+                    total_len = total_len - #removed
+                end
+            end
+        end)
+    end
+end
+
+function M.fini(env)
+    if env and env.commit_conn then
+        env.commit_conn:disconnect()
+        env.commit_conn = nil
+    end
 end
 
 local function parse_json_field(json_str, field)
@@ -88,8 +113,17 @@ function M.func(input, seg, env)
 
     local f_req = io.open(tmp_path, "w")
     if not f_req then return end
+    local context_text = ""
+    if env and env.commit_history and #env.commit_history > 0 then
+        context_text = table.concat(env.commit_history, "")
+        if #context_text > 180 then
+            context_text = context_text:sub(-180)
+        end
+    end
+
     local safe_py = pinyin:gsub('\\', '\\\\'):gsub('"', '\\"')
-    f_req:write(string.format('{"id": "%s", "pinyin": "%s"}', req_id, safe_py))
+    local safe_ctx = context_text:gsub('\\', '\\\\'):gsub('"', '\\"')
+    f_req:write(string.format('{"id": "%s", "pinyin": "%s", "context": "%s"}', req_id, safe_py, safe_ctx))
     f_req:close()
     os.rename(tmp_path, req_path)
 
