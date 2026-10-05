@@ -4,7 +4,21 @@
 > 0 弹黑框、0ms 日常打字穿透、键盘邻键智能容错三候选、集成丰富的前缀 AI 指令（问答/翻译/命令/猫娘）。
 
 [![GitHub Release](https://img.shields.io/github/v/release/mhdy2233/rime-llm-translator-windows?style=flat-square&color=blue)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest)
-[![Download Standalone](https://img.shields.io/badge/下载-独立免安装版%20(无需Python)-success?style=flat-square&logo=windows)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest/download/rime-llm-translator-windows-v1.0.0-standalone.zip)
+[![Download Standalone](https://img.shields.io/badge/下载-独立免安装版%20v1.1.0%20(无需Python)-success?style=flat-square&logo=windows)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest/download/rime-llm-translator-windows-v1.1.0-standalone.zip)
+
+---
+
+## 🚨 隐私安全声明与选项警告 (Privacy Warning)
+
+> **⚠️ 重要安全提醒**：  
+> 本项目核心秉承**「离线输入法隐私优先」**原则：
+> 1. **上下文联想（`enable_context`）已在所有版本中默认强制【关闭】（`false`）**；
+> 2. 在默认关闭状态下，你在键盘上打字，只有在末尾输入 `vv` 时，系统**仅仅将当前输入框里的那一段拼音**发送至大模型 API，**绝不记录、绝不上报任何打字历史或历史文字**；
+> 
+> **若你在 `config.json` 中自行将 `enable_context` 修改为 `true`：**
+> - 输入法会自动监听并向云端 API 传输你**最近打字上屏的历史文本**（默认最多 60 个字符，作为语义消歧上下文）；
+> - **这可能会导致你的密码、身份证、银行卡、公司商业机密或私人聊天记录被发送给云端 AI 供应商，存在极高的隐私泄露风险！**
+> - **严禁在处理保密信息、金融凭据或敏感文件时开启此选项！** 如非必要，请务必保持 `enable_context: false`。
 
 ---
 
@@ -84,12 +98,16 @@
     "model": "deepseek-chat",
     "trigger_suffix": "vv",
     "temperature": 0.1,
-    "max_tokens": 120,
+    "max_tokens": 500,
     "timeout_seconds": 5.0,
-    "debounce_seconds": 0.8
+    "debounce_seconds": 0.8,
+    "enable_context": false,
+    "max_context_length": 60
 }
 ```
 
+- **`enable_context`**：上下文联想开关（**默认 `false` 处于关闭保护状态**）；
+- **`max_context_length`**：最大携带上文长度（默认为 60 字）；
 - **`trigger_suffix`**：唤醒后缀，默认为 `"vv"`；
 - **`model`**：模型名称，可切换为 `"deepseek-reasoner"`（推理模型）等；
 - **服务启停控制**：
@@ -101,7 +119,7 @@
 ## 🗑️ 如何干净卸载
 
 双击项目根目录下的 **`uninstall.bat`**：
-脚本会自动终止后台守护进程、清空缓存、删除 Lua 插件并重新部署小狼毫，100% 毫无残留地恢复至原始状态。
+脚本会自动终止后台守护进程、清空缓存、删除注册表自启项、删除 Lua 插件并重新部署小狼毫，100% 毫无残留地恢复至原始状态。
 
 ---
 

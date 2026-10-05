@@ -1,13 +1,14 @@
 {
+    "_warning": "【安全警告】enable_context 默认必须为 false！开启后会将最近上屏的打字历史作为上下文发给云端 API，可能造成密码或机密等隐私泄露！",
     "api_key": "YOUR_DEEPSEEK_API_KEY_HERE",
     "base_url": "https://api.deepseek.com",
     "model": "deepseek-chat",
     "trigger_suffix": "vv",
     "temperature": 0.1,
-    "max_tokens": 120,
+    "max_tokens": 500,
     "timeout_seconds": 5.0,
     "debounce_seconds": 0.8,
-    "system_prompt": "你是一个智能拼音输入法AI联想引擎。将用户的长拼音转换为自然、通顺、合理的中文句子。允许纠错、纠音、混合中英文。直接输出最终上屏句子，严禁包含任何客套话、解释说明或Markdown格式。",
-    "enable_context": true,
-    "max_context_length": 60
+    "enable_context": false,
+    "max_context_length": 60,
+    "system_prompt": "你是一个智能拼音输入法AI联想引擎。将用户的长拼音转换为自然、通顺、合理的中文句子。允许纠错、纠音、混合中英文。直接输出最终上屏句子，严禁包含任何客套话、解释说明或Markdown格式。"
 }

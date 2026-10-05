@@ -28,7 +28,7 @@ def load_config():
         "trigger_suffix": "vv",
         "temperature": 0.1,
         "max_tokens": 500,
-        "enable_context": True,
+        "enable_context": False,
         "max_context_length": 60,
         "timeout_seconds": 5.0,
         "ipc_dir": os.path.join(os.environ.get("TEMP", "C:/Temp"), "rime_llm_ipc"),
@@ -251,6 +251,10 @@ def run_loop():
     LOG_FILE = os.path.join(ipc_dir, "daemon.log")
     
     log(f"守护进程启动 (PID: {os.getpid()})")
+    if cfg.get("enable_context", False):
+        log("⚠️ 隐私警告：当前已开启上下文联想 (enable_context=true)，上屏历史文字将被发送至云端 AI，请注意隐私安全！")
+    else:
+        log("隐私安全：上下文联想已默认关闭 (enable_context=false)，不收集上屏历史文字。")
     status_file = os.path.join(ipc_dir, "daemon.status")
     with open(status_file, "w", encoding="utf-8") as f:
         f.write(str(os.getpid()))
