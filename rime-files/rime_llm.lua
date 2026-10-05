@@ -115,10 +115,18 @@ function M.func(input, seg, env)
     if not f_req then return end
     local context_text = ""
     if env and env.commit_history and #env.commit_history > 0 then
-        context_text = table.concat(env.commit_history, "")
-        if #context_text > 180 then
-            context_text = context_text:sub(-180)
+        local count = #env.commit_history
+        local parts = {}
+        local len = 0
+        for idx = count, 1, -1 do
+            local item = env.commit_history[idx]
+            if len + #item > 150 and #parts > 0 then
+                break
+            end
+            table.insert(parts, 1, item)
+            len = len + #item
         end
+        context_text = table.concat(parts, "")
     end
 
     local safe_py = pinyin:gsub('\\', '\\\\'):gsub('"', '\\"')

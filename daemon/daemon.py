@@ -268,13 +268,13 @@ def run_loop():
                     continue
                 req_data = None
                 try:
-                    with open(rf, "r", encoding="utf-8-sig") as f:
+                    with open(rf, "r", encoding="utf-8-sig", errors="replace") as f:
                         content = f.read().strip()
                         # 兼容 powershell 误带转义引号的情况
                         if content.startswith('"') and content.endswith('"') and '\\"' in content:
                             content = content[1:-1].replace('\\"', '"')
                         req_data = json.loads(content)
-                except (json.JSONDecodeError, PermissionError, OSError) as e:
+                except Exception as e:
                     # 如果重试多次依然出错，记录并清理
                     log(f"解析请求失败 {rf}: {e}")
                     try:
