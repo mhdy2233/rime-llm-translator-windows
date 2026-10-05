@@ -23,6 +23,7 @@ if not exist "%TARGET_DAEMON%" mkdir "%TARGET_DAEMON%"
 copy /y daemon\daemon.py "%TARGET_DAEMON%\" >nul
 copy /y daemon\start_daemon.bat "%TARGET_DAEMON%\" >nul
 copy /y daemon\stop_daemon.bat "%TARGET_DAEMON%\" >nul
+copy /y daemon\silent_start.vbs "%TARGET_DAEMON%\" >nul
 if not exist "%TARGET_DAEMON%\config.json" (
     copy /y daemon\config.json "%TARGET_DAEMON%\" >nul
 )
@@ -74,6 +75,10 @@ if defined DEPLOYER (
 ) else (
     echo [提示] 未找到 WeaselDeployer.exe，请在系统托盘右键小狼毫图标，点击【重新部署】生效。
 )
+
+echo [6/6] 配置 Windows 开机随 Rime 静默自启动...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "RimeLLMTranslatorDaemon" /t REG_SZ /d "wscript.exe \"%TARGET_DAEMON%\silent_start.vbs\"" /f >nul 2>&1
+echo [OK] 开机自启动注册成功！
 
 echo.
 echo 启动后台守护服务...

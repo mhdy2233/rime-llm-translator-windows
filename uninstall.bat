@@ -15,6 +15,9 @@ if exist "%TARGET_DAEMON%\stop_daemon.bat" (
 )
 taskkill /f /im pythonw.exe >nul 2>&1
 
+echo [2/5] 清理 Windows 开机自启动注册表项...
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "RimeLLMTranslatorDaemon" /f >nul 2>&1
+
 echo [2/4] 清理守护进程与缓存目录...
 if exist "%TARGET_DAEMON%" rd /s /q "%TARGET_DAEMON%"
 if exist "%TEMP%\rime_llm_ipc" rd /s /q "%TEMP%\rime_llm_ipc"
