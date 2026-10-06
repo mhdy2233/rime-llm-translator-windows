@@ -5,6 +5,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/mhdy2233/rime-llm-translator-windows?style=flat-square&color=blue)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest)
 [![Download Standalone](https://img.shields.io/badge/下载-独立免安装版%20v1.1.0%20(无需Python)-success?style=flat-square&logo=windows)](https://github.com/mhdy2233/rime-llm-translator-windows/releases/latest/download/rime-llm-translator-windows-v1.1.0-standalone.zip)
+[![Build and Release](https://img.shields.io/github/actions/workflow/status/mhdy2233/rime-llm-translator-windows/release.yml?branch=main&style=flat-square&logo=github&label=build)](https://github.com/mhdy2233/rime-llm-translator-windows/actions/workflows/release.yml)
 
 ---
 
